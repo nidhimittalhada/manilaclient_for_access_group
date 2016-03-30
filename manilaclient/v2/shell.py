@@ -218,8 +218,25 @@ def _find_security_service(cs, security_service):
     "Get a security service by ID or name."
     return apiclient_utils.find_resource(cs.security_services,
                                          security_service)
+###########
+def _find_access_group(cs, access_group):
+    """Get a access_group by ID."""
+    return apiclient_utils.find_resource(cs.access_groups,
+                                         access_group)
 
+def _print_access_group(cs, access_group):
+    info = access_group._info.copy()
+    cliutils.print_dict(info)
 
+def _find_access_group_entry(cs, access_group_entry):
+    """Get a access_group_entry by ID."""
+    return apiclient_utils.find_resource(cs.access_group_entries,
+                                         access_group_entry)
+def _print_access_group_entry(cs, access_group_entry):
+    info = access_group_entry._info.copy()
+    cliutils.print_dict(info)
+
+###########
 def _translate_keys(collection, convert):
     for item in collection:
         keys = item.__dict__
@@ -868,6 +885,220 @@ def do_show(cs, args):
     export_locations = cs.share_export_locations.list(share)
     share._info['export_locations'] = export_locations
     _print_share(cs, share)
+
+
+@cliutils.arg(
+    'name',
+    metavar='<name>',
+    default=None,
+    help='access group name.')
+@cliutils.arg(
+    'description',
+    metavar='<description>',
+    default=None,
+    help='access group description.')
+@cliutils.arg(
+    'access_type',
+    metavar='<access_type>',
+    default=None,
+    help='access type of access group.')
+@cliutils.arg(
+    '--access-level',
+    '--access_level',  # alias
+    metavar='<access_level>',
+    type=str,
+    default=None,
+    choices=['rw', 'ro'],
+    help='Share access level ("rw" and "ro" access levels are supported). '
+         'Defaults to rw.')
+def do_access_group_create(cs, args):
+    """Add a new access group."""
+    access_group = cs.access_groups.create(args.name,
+                                       args.description,
+                                       args.access_type,
+                                       args.access_level)
+    _print_access_group(cs, access_group)
+
+
+@cliutils.arg(
+    'access_group',
+    metavar='<access_group>',
+    help='Name or ID of the access_group.')
+def do_access_group_show(cs, args):
+    """Show details about a access_group."""
+    print("NMH shell.py 11111111 args.access_group is",args.access_group)
+    print("NMH shell.py 11111111 cs is",cs)
+    access_group = _find_access_group(cs, args.access_group)
+    _print_access_group(cs, access_group)
+
+@cliutils.arg(
+    '--columns',
+    metavar='<columns>',
+    type=str,
+    default=None,
+    help='Comma separated list of columns to be displayed '
+         'e.g. --columns "name,description"')
+@cliutils.arg(
+    '--detailed',
+    dest='detailed',
+    metavar='<0|1>',
+    nargs='?',
+    type=int,
+    const=1,
+    default=0,
+    help='Show detailed information about access groups.')
+def do_access_group_list(cs, args):
+    """Show access group list"""
+    if args.detailed:
+        list_of_keys = [
+            'Id', 'Created_At', 'Name', 'Description', 'Access_Type',
+            'Access_Level', 'Access_To', 'Access_Entry_Count'
+        ]
+    else:
+        list_of_keys = [
+            'Id', 'Created_At', 'Name', 'Description', 'Access_Type',
+            'Access_Level'
+        ]
+
+
+    if args.columns is not None:
+        list_of_keys = _split_columns(columns=args.columns)
+    access_group_list = cs.access_groups.list(detailed=args.detailed)
+    print("NMH 122222 shell.py access_group_list result is",access_group_list)
+    cliutils.print_list(access_group_list, list_of_keys)
+
+
+@cliutils.arg(
+    'access_to',
+    metavar='<access_to>',
+    default=None,
+    help='Value that defines access.')
+@cliutils.arg(
+    'access_group_id',
+    metavar='<access_group_id>',
+    default=None,
+    help='Access Group ID.')
+def do_access_group_entry_create(cs, args):
+    """Add a new access group entry."""
+    access_group_entry = cs.access_group_entries.create(
+        args.access_to,
+        args.access_group_id
+        )
+    _print_access_group_entry(cs, access_group_entry)
+
+@cliutils.arg(
+    'access_group_entry',
+    metavar='<access_group_entry>',
+    help='ID of the access_group_entry.')
+def do_access_group_entry_show(cs, args):
+    """Show details about a access_group_entry."""
+    print("NMH shell.py 11111111 args.access_group_entry is",args.access_group_entry)
+    access_group_entry = _find_access_group_entry(cs, args.access_group_entry)
+    _print_access_group_entry(cs, access_group_entry)
+
+@cliutils.arg(
+    '--columns',
+    metavar='<columns>',
+    type=str,
+    default=None,
+    help='Comma separated list of columns to be displayed '
+         'e.g. --columns "name,description"')
+@cliutils.arg(
+    '--detailed',
+    dest='detailed',
+    metavar='<0|1>',
+    nargs='?',
+    type=int,
+    const=1,
+    default=0,
+    help='Show detailed information about access groups.')
+@cliutils.arg(
+    '--access-group-id',
+    '--access_group_id',  # alias
+    metavar='<access_group_id>',
+    default=None,
+    action='single_alias',
+    help='Filter results by access group ID.')
+@cliutils.arg(
+    '--sort-key',
+    '--sort_key',  # alias
+    metavar='<sort_key>',
+    type=str,
+    default=None,
+    action='single_alias',
+    help='Key to be sorted, available keys are %(keys)s. '
+         'Default=None.' % {'keys': constants.ACCESS_GROUP_ENTRY_SORT_KEY_VALUES})
+@cliutils.arg(
+    '--sort-dir',
+    '--sort_dir',  # alias
+    metavar='<sort_dir>',
+    type=str,
+    default=None,
+    action='single_alias',
+    help='Sort direction, available values are %(values)s. '
+         'OPTIONAL: Default=None.' % {'values': constants.SORT_DIR_VALUES})
+def do_access_group_entry_list(cs, args):
+    """Show access group entry list"""
+    if args.detailed:
+        list_of_keys = [
+            'Id', 'Created_At', 'Access_To', 'Access_Group_Id',
+            'Access_Group_Name', 'Access_Level', 'Access_Type']
+    else:    
+        list_of_keys = ['Id', 'Created_At', 'Access_To', 'Access_Group_Id']
+
+    if args.columns is not None:
+        list_of_keys = _split_columns(columns=args.columns)
+
+    search_opts = {
+        'access_group_id': args.access_group_id,
+    }
+
+    access_group_entry_list = cs.access_group_entries.list(detailed=args.detailed, 
+                                                           search_opts=search_opts,
+                                                           sort_key=args.sort_key,
+                                                           sort_dir=args.sort_dir)
+    print("NMH 122222 shell.py access_group_entry_list obtained result is",access_group_entry_list)
+    cliutils.print_list(access_group_entry_list, list_of_keys)
+
+@cliutils.arg(
+    'access_group_entry',
+    metavar='<access_group_entry>',
+    help='ID of the access group entry to delete.')
+def do_access_group_entry_delete(cs, args):
+    """Remove an access group entry."""
+    access_group_entry = _find_access_group_entry(cs, args.access_group_entry)
+    access_group_entry.delete()
+
+@cliutils.arg(
+    'share',
+    metavar='<share>',
+    help='ID of the NAS share to modify.')
+@cliutils.arg(
+    'access_group_id',
+    metavar='<access_group_id>',
+    help='ID of the access_group.')
+def do_access_group_allow(cs, args):
+    """Map access group to the share."""
+    share = _find_share(cs, args.share)
+    print("NMH shell.py 11111111 share is",share)
+    access_group_map = share.allow_access_group(args.access_group_id)
+    print("NMH shell.py 11111111 args.access_group_map is",access_group_map)
+    cliutils.print_dict(access_group_map['access_group_mapping'])
+
+@cliutils.arg(
+    'share',
+    metavar='<share>',
+    help='Name or ID of the NAS share to modify.')
+@cliutils.arg(
+    'access_group_id',
+    metavar='<access_group_id>',
+    help='ID of the access group to be unmapped.')
+def do_access_group_deny(cs, args):
+    """Unmap access group to the share."""
+    share = _find_share(cs, args.share)
+    print("NMH shell.py 11111111 share is",share)
+    share.deny_access_group(args.access_group_id)
+
 
 
 @cliutils.arg(

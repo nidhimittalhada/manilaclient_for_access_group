@@ -33,12 +33,16 @@ def find_resource(manager, name_or_id, **find_args):
     """
     # first try to get entity as integer id
     try:
+        print("NMH i m here /opt/stack/python-manilaclient/manilaclient/openstack/common/apiclient/utils.py")
+        print("NMH 22222 I am here try to get entity as integer id") 
         return manager.get(int(name_or_id))
     except (TypeError, ValueError, exceptions.NotFound):
         pass
 
     # now try to get entity as uuid
     try:
+        print("NMH 22222 I am here222") 
+        print("NMH 22222 I am here try to get entity as uuid") 
         if six.PY2:
             tmp_id = encodeutils.safe_encode(name_or_id)
         else:
@@ -51,6 +55,8 @@ def find_resource(manager, name_or_id, **find_args):
 
     # for str id which is not uuid
     if getattr(manager, 'is_alphanum_id_allowed', False):
+        print("NMH 22222 I am here3333") 
+        print("NMH 22222 I am here try to get entity as str id") 
         try:
             return manager.get(name_or_id)
         except exceptions.NotFound:
@@ -58,12 +64,16 @@ def find_resource(manager, name_or_id, **find_args):
 
     try:
         try:
+            print("NMH 22222 I am here555555555 openstack/common/apiclient/utils.py") 
+            print("NMH 22222 I am here try to get entity as str id") 
             return manager.find(human_id=name_or_id, **find_args)
         except exceptions.NotFound:
             pass
 
         # finally try to find entity by name
         try:
+            print("NMH 22222 I am here66666666") 
+            print("NMH 22222 I am here try to get entity as name") 
             resource = getattr(manager, 'resource_class', None)
             name_attr = resource.NAME_ATTR if resource else 'name'
             kwargs = {name_attr: name_or_id}

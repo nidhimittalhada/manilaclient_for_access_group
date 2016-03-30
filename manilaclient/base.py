@@ -62,6 +62,7 @@ class Manager(utils.HookableMixin):
             obj_class = self.resource_class
 
         data = body[response_key]
+        print("NMH 222222base.py, data response is",data )
         # NOTE(ja): keystone returns values as list as {'values': [ ... ]}
         #           unlike other services which just return the list...
         if isinstance(data, dict):
@@ -137,8 +138,13 @@ class Manager(utils.HookableMixin):
             cache.write("%s\n" % val)
 
     def _get(self, url, response_key=None):
+        print("NMH 6666666 base.py i m here url",url)
         resp, body = self.api.client.get(url)
+        print("NMH 6666666 base.py i m here resp is",resp)
+        print("NMH 6666666 base.py i m here body is",body)
+
         if response_key:
+            print("NMH 6666666 base.py i m here returning is", body[response_key])
             return self.resource_class(self, body[response_key], loaded=True)
         else:
             return self.resource_class(self, body, loaded=True)
