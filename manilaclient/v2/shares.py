@@ -75,9 +75,17 @@ class Share(common_base.Resource):
         """Allow access to a share."""
         return self.manager.allow(self, access_type, access, access_level)
 
+    def allow_access_group(self, access_group):
+        """Map access_group to a share."""
+        return self.manager.allow_access_group(self, access_group)
+
     def deny(self, id):
         """Deny access from IP to a share."""
         return self.manager.deny(self, id)
+
+    def deny_access_group(self, access_group_id):
+        """Unmap access group to a share."""
+        return self.manager.deny_access_group(self, access_group_id)
 
     def access_list(self):
         """Get access list from a share."""
@@ -502,6 +510,21 @@ class ShareManager(base.ManagerWithFind):
         access = self._action(action_name, share,
                               access_params)[1]["access"]
         return access
+   
+    def _do_allow_access_group(self, share, access_group, action_name):
+        """Map access group to a share.
+
+        :param share: either share object or text with its ID.
+        :param access_group: ID of access_group
+        """
+        access_params = {
+            'access_group': access_group,
+        }
+        access_group_map = self._action(action_name, share,
+                              access_params)[1]
+        print("NMH 112233334444 access_group_map is",access_group_map)
+        return access_group_map
+        
 
     @api_versions.wraps("1.0", "2.6")
     def allow(self, share, access_type, access, access_level):
@@ -522,6 +545,10 @@ class ShareManager(base.ManagerWithFind):
         return self._do_allow(
             share, access_type, access, access_level, "allow_access")
 
+    def allow_access_group(self, share, access_group):
+        return self._do_allow_access_group(
+            share, access_group, "allow_access_group")
+
     def _do_deny(self, share, access_id, action_name):
         """Deny access to a share.
 
@@ -529,6 +556,14 @@ class ShareManager(base.ManagerWithFind):
         :param access_id: ID of share access rule
         """
         return self._action(action_name, share, {"access_id": access_id})
+    
+    def _do_deny_access_group(self, share, access_group_id, action_name):
+        """Unmap access group to a share.
+
+        :param share: either share object or text with its ID.
+        :param access_group_id: ID of access group
+        """
+        return self._action(action_name, share, {"access_group_id": access_group_id})
 
     @api_versions.wraps("1.0", "2.6")
     def deny(self, share, access_id):
@@ -537,6 +572,10 @@ class ShareManager(base.ManagerWithFind):
     @api_versions.wraps("2.7")  # noqa
     def deny(self, share, access_id):
         return self._do_deny(share, access_id, "deny_access")
+
+    def deny_access_group(self, share, access_group_id):
+        return self._do_deny_access_group(
+            share, access_group_id, "deny_access_group")
 
     def _do_access_list(self, share, action_name):
         """Get access list to a share.

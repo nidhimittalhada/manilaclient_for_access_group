@@ -22,6 +22,8 @@ import manilaclient
 from manilaclient.common import constants
 from manilaclient.common import httpclient
 from manilaclient import exceptions
+from manilaclient.v2 import access_groups
+from manilaclient.v2 import access_group_entries
 from manilaclient.v2 import consistency_group_snapshots as cg_snapshots
 from manilaclient.v2 import consistency_groups
 from manilaclient.v2 import limits
@@ -220,7 +222,8 @@ class Client(object):
             share_instance_export_locations.ShareInstanceExportLocationManager(
                 self))
         self.share_snapshots = share_snapshots.ShareSnapshotManager(self)
-
+        self.access_groups = access_groups.AccessGroupManager(self)
+        self.access_group_entries = access_group_entries.AccessGroupEntriesManager(self)
         self.share_types = share_types.ShareTypeManager(self)
         self.share_type_access = share_type_access.ShareTypeAccessManager(self)
         self.share_servers = share_servers.ShareServerManager(self)

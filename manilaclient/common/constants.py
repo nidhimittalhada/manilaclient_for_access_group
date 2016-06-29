@@ -73,6 +73,23 @@ CG_SNAPSHOT_MEMBERS_SORT_KEY_VALUES = (
     'cgsnapshot_id',
 )
 
+ACCESS_GROUP_SORT_KEY_VALUES = (
+    'id',
+    'project_id'
+    'name',
+    'created_at',
+    'description',
+    'access_type',
+    'access_level',
+)
+
+ACCESS_GROUP_ENTRY_SORT_KEY_VALUES = (
+    'id',
+    'created_at',
+    'access_to',
+    'access_group_id'
+)
+
 EXPERIMENTAL_HTTP_HEADER = 'X-OpenStack-Manila-API-Experimental'
 V1_SERVICE_TYPE = 'share'
 V2_SERVICE_TYPE = 'sharev2'
